@@ -12,7 +12,7 @@ router.register(r'codes', views.PostalCodeViewSet)
 urlpatterns = patterns( '',
     url(r'^', include(router.urls)),
 # awesome generic stuff...
-    url('^bs', views.PostalCodeView.as_view()),
+    url('^raw/postalcodes', views.PostalCodeView.as_view()),
 #    url('^bs/(?P<country>.+)/(?P<postal_code>.+)$', views.PostalCodeView.as_view()),
     url( r'^phonenumber/(?P<s>.*)', views.phonenumber),
     url( r'^postalcodes/(?P<country_code>.*)/(?P<postal_code>.*)', views.postalcode),
