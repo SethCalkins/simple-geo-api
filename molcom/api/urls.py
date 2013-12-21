@@ -16,4 +16,5 @@ urlpatterns = patterns( '',
 #    url('^bs/(?P<country>.+)/(?P<postal_code>.+)$', views.PostalCodeView.as_view()),
     url( r'^phonenumber/(?P<s>.*)', views.phonenumber),
     url( r'^postalcodes/(?P<country_code>.*)/(?P<postal_code>.*)', views.postalcode),
+    url( r'^location/(?P<country_code>.*)/(?P<postal_code>.*)', views.postalcode),
 )
