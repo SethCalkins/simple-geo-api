@@ -99,10 +99,11 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Make this match your Mashape Proxy Secret (https://www.mashape.com/<user>/<api>/admin/settings)
 
-MASHAPE_PROXY_SECRET = ''
+MASHAPE_PROXY_SECRET = 'eBjB3rB0aY7fWDr98MZsfyZyR1ADUZ'
 
 try:
     from local_settings import *
