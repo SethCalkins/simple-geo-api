@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from decorators import *
 from api import *
-from api.models import PostalCode
+from api.models import PostalCode, Recipe
 import phonenumbers
 
 
@@ -20,11 +20,34 @@ from rest_framework import exceptions
 from rest_framework import permissions
 from rest_framework.throttling import UserRateThrottle
 
+class MyUserPermissions(permissions.BasePermission):
+    """
+    Handles permissions for users.  The basic rules are
+
+     - owner may GET, PUT, POST, DELETE
+     - nobody else can access
+     """
+
+    def has_object_permission(self, request, view, obj):
+
+        # check if user is owner
+        return request.user == obj
+
+
 class PostalCodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PostalCode
         fields = ('country', 'postal_code', 'region', 'latitude', 'longitude')
 
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'email', 'groups')
+
+class RecipeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('name', 'definition')
 
 class PostalCodeView(generics.ListAPIView):
 #    country = self.kwargs['country']
@@ -43,6 +66,24 @@ class PostalCodeViewSet(viewsets.ModelViewSet):
     queryset = PostalCode.objects.all()
     serializer_class = PostalCodeSerializer
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (MyUserPermissions, )
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+#    model = Recipe
+    permission_classes = (MyUserPermissions, )
+#    serializer_class = UserSerializer
 
 class ExampleAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
@@ -70,6 +111,7 @@ def dump(request):
     resp = {}
     resp['get'] = {k:unicode(v) for k,v in request.GET.items()}
     resp['meta'] = {k:unicode(v) for k,v in request.META.items()}
+    print request.user
     return resp
 
 @csrf_exempt
@@ -84,6 +126,7 @@ def phonenumber(request, s):
         'isValid' : valid,
     }
     remote = request.META.get('REMOTE_ADDR')
+    user = request.META.get('HTTP_X_MASHAPE_USER')
 
     if possible and valid:
         resp_deets = {

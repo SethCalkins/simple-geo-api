@@ -43,11 +43,12 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-#    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'api.middleware.mashape.AuthenticationMiddleware',
 #    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
@@ -98,6 +99,10 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Make this match your Mashape Proxy Secret (https://www.mashape.com/<user>/<api>/admin/settings)
+
+MASHAPE_PROXY_SECRET = ''
 
 try:
     from local_settings import *

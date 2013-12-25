@@ -1,4 +1,7 @@
 from django.db import models
+from django import forms
+from django.contrib.auth.models import User
+import uuid
 
 class PostalCode(models.Model):
     country = models.CharField(max_length=2)
@@ -18,4 +21,15 @@ def make_uuid():
 
 class Recipe(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, default=make_uuid, editable=False)
+    user = models.ForeignKey(User)
+#    user = models.CharField(max_length=50)
     name = models.CharField(max_length=50, )
+    definition = models.CharField(max_length=4000)
+    def __unicode__(self):
+        return unicode(self.name)
+
+class RecipeForm(forms.ModelForm):
+    name = forms.CharField(max_length=50)
+    definition = forms.CharField(max_length=4000, widget=forms.Textarea)
+    class Meta:
+        model = Recipe

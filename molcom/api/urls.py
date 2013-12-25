@@ -7,6 +7,8 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 #router.register(r'codes', )
 router.register(r'codes', views.PostalCodeViewSet)
+router.register('users', views.UserViewSet)
+router.register('recipes', views.RecipeViewSet)
 # router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = patterns( '',
