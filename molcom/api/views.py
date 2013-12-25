@@ -29,9 +29,8 @@ class MyUserPermissions(permissions.BasePermission):
      """
 
     def has_object_permission(self, request, view, obj):
-
         # check if user is owner
-        return request.user == obj
+        return request.user == obj.user or request.user.is_superuser
 
 
 class PostalCodeSerializer(serializers.HyperlinkedModelSerializer):
@@ -47,7 +46,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('name', 'definition')
+        fields = ('id', 'name', 'definition')
 
 class PostalCodeView(generics.ListAPIView):
 #    country = self.kwargs['country']
@@ -76,13 +75,13 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (MyUserPermissions, )
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-#    model = Recipe
     permission_classes = (MyUserPermissions, )
+    def pre_save(self, obj):
+        print 'START PRESAVE!!!'
+        obj.user = self.request.user
+        print 'PRESAVE END!!!'
 #    serializer_class = UserSerializer
 
 class ExampleAuthentication(authentication.BaseAuthentication):

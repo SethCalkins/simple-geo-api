@@ -20,7 +20,7 @@ def make_uuid():
     return str(uuid.uuid4())
 
 class Recipe(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, default=make_uuid, editable=False)
+    id = models.CharField(max_length=36, primary_key=True, default=make_uuid, editable=False)
     user = models.ForeignKey(User)
 #    user = models.CharField(max_length=50)
     name = models.CharField(max_length=50, )
