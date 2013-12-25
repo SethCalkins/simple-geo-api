@@ -13,7 +13,12 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from rest_framework import filters
 from rest_framework import generics
+# from django.contrib.auth.models import User
+from rest_framework import authentication
+from rest_framework import exceptions
 
+from rest_framework import permissions
+from rest_framework.throttling import UserRateThrottle
 
 class PostalCodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -24,6 +29,9 @@ class PostalCodeSerializer(serializers.HyperlinkedModelSerializer):
 class PostalCodeView(generics.ListAPIView):
 #    country = self.kwargs['country']
     queryset = PostalCode.objects.all()
+    throttle_classes = []
+#    throttle_classes = (UserRateThrottle,)
+#    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PostalCodeSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('postal_code', 'country', 'region')
@@ -36,6 +44,34 @@ class PostalCodeViewSet(viewsets.ModelViewSet):
     serializer_class = PostalCodeSerializer
 
 
+class ExampleAuthentication(authentication.BaseAuthentication):
+    def authenticate(self, request):
+        username = request.META.get('X-Mashape-Authorization')
+        if not username:
+            return None
+        user = username
+        print 'auth', user
+
+#        try:
+#            user = User.objects.get(username=username)
+#        except User.DoesNotExist:
+#            raise exceptions.AuthenticationFailed('No such user')
+
+        return (user, None)
+
+@csrf_exempt
+@rest_json()
+def blerg(request, s):
+    pass
+
+@csrf_exempt
+@rest_json()
+def dump(request):
+    resp = {}
+    resp['get'] = {k:unicode(v) for k,v in request.GET.items()}
+    resp['meta'] = {k:unicode(v) for k,v in request.META.items()}
+    return resp
+
 @csrf_exempt
 @rest_json()
 def phonenumber(request, s):
@@ -47,6 +83,8 @@ def phonenumber(request, s):
         'isPossible' : possible,
         'isValid' : valid,
     }
+    remote = request.META.get('REMOTE_ADDR')
+
     if possible and valid:
         resp_deets = {
             'countryCode' : p.country_code,

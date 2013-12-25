@@ -12,3 +12,10 @@ class PostalCode(models.Model):
         __all__ = ['country', 'postal_code']
     def __unicode__(self):
         return unicode(self.country + ' ' + self.postal_code)
+
+def make_uuid():
+    return str(uuid.uuid4())
+
+class Recipe(models.Model):
+    uuid = models.CharField(max_length=36, primary_key=True, default=make_uuid, editable=False)
+    name = models.CharField(max_length=50, )
