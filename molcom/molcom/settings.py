@@ -102,8 +102,37 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Make this match your Mashape Proxy Secret (https://www.mashape.com/<user>/<api>/admin/settings)
+MASHAPE_PROXY_SECRET = ''
 
-MASHAPE_PROXY_SECRET = 'eBjB3rB0aY7fWDr98MZsfyZyR1ADUZ'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/main.log'),
+            'maxBytes': 10000000,
+            'backupCount': 5,
+#            'formatter': 'standard',
+        },
+    }
+}
 
 try:
     from local_settings import *
