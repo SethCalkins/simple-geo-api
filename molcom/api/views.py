@@ -168,7 +168,9 @@ def dictfetchone(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
     row = cursor.fetchone()
-    return dict(zip([col[0] for col in desc], row))
+    if row:
+        return dict(zip([col[0] for col in desc], row))
+    return {col[0]:None for col in desc}
 
 import re
 AS_PREFIX          = re.compile(r'^AS(\d+) ')
@@ -183,7 +185,6 @@ def get_org(ip_addr):
             org = AS_PREFIX.sub('', org)
             return org
     except:
-        raise
         return None
 
 
@@ -191,7 +192,10 @@ def get_org(ip_addr):
 @rest_json()
 def ip_basic(request, s):
     from django.db import connections
-    int_ip = get_int_ip(s)
+    ip_addr = s
+    if ip_addr == '':
+        ip_addr = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+    int_ip = get_int_ip(ip_addr)
     cursor = connections['ipdb'].cursor()
 
     sql = """
@@ -212,8 +216,8 @@ WHERE      %s BETWEEN ip_start and ip_end
     resp = dictfetchone(cursor) #.fetchone()
     if resp is None:
         resp = {}
-    resp['ip'] = s
-    resp['organization'] = get_org(s)
+    resp['ip'] = ip_addr
+    resp['organization'] = get_org(ip_addr)
 
     return resp
 
