@@ -213,7 +213,7 @@ WHERE      %s BETWEEN ip_start and ip_end
     if resp is None:
         resp = {}
     resp['ip'] = s
-    resp['org'] = get_org(s)
+    resp['organization'] = get_org(s)
 
     return resp
 
