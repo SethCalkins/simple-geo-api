@@ -4,6 +4,8 @@ from decorators import *
 from api import *
 from api.models import PostalCode, Recipe
 import phonenumbers
+import requests
+
 
 
 from rest_framework import viewsets
@@ -176,13 +178,21 @@ import re
 AS_PREFIX          = re.compile(r'^AS(\d+) ')
 
 def get_org(ip_addr):
-    import requests
-
     try:
         resp = requests.get('http://ipinfo.io/%s/json' % ip_addr)
         if resp:
             org = resp.json().get('org')
             org = AS_PREFIX.sub('', org)
+            return org
+    except:
+        return None
+
+def get_org_arin(ip_addr):
+    url_format = 'http://whois.arin.net/rest/ip/%s.json'
+    try:
+        resp = requests.get(url_format % ip_addr)
+        if resp:
+            org = resp.json()['net']['customerRef']['@name'] #'$'
             return org
     except:
         return None
@@ -217,7 +227,10 @@ WHERE      %s BETWEEN ip_start and ip_end
     if resp is None:
         resp = {}
     resp['ip'] = ip_addr
-    resp['organization'] = get_org(ip_addr)
+    org = get_org_arin(ip_addr)
+    if org is None:
+        org = get_org(ip_addr)
+    resp['organization'] = org
 
     return resp
 
