@@ -170,6 +170,23 @@ def dictfetchone(cursor):
     row = cursor.fetchone()
     return dict(zip([col[0] for col in desc], row))
 
+import re
+AS_PREFIX          = re.compile(r'^AS(\d+) ')
+
+def get_org(ip_addr):
+    import requests
+
+    try:
+        resp = requests.get('http://ipinfo.io/%s/json' % ip_addr)
+        if resp:
+            org = resp.json().get('org')
+            org = AS_PREFIX.sub('', org)
+            return org
+    except:
+        raise
+        return None
+
+
 @csrf_exempt
 @rest_json()
 def ip_basic(request, s):
@@ -196,6 +213,7 @@ WHERE      %s BETWEEN ip_start and ip_end
     if resp is None:
         resp = {}
     resp['ip'] = s
+    resp['org'] = get_org(s)
 
     return resp
 
