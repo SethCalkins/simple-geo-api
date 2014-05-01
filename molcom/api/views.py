@@ -147,6 +147,59 @@ def phonenumber(request, s):
 #    uri = uri + qs
 #    return sources.hds.get(uri)
 
+def get_int_ip(ip_addr):
+    try:
+        ( o1, o2, o3, o4 ) = ip_addr.split('.')
+        integer_ip = ( 16777216 * int(o1) ) + (    65536 * int(o2) ) + (      256 * int(o3) ) +              int(o4)
+        print integer_ip
+    except:
+        integer_ip = None
+    return integer_ip
+
+def dictfetchall(cursor):
+    "Returns all rows from a cursor as a dict"
+    desc = cursor.description
+    return [
+        dict(zip([col[0] for col in desc], row))
+        for row in cursor.fetchall()
+    ]
+
+def dictfetchone(cursor):
+    "Returns all rows from a cursor as a dict"
+    desc = cursor.description
+    row = cursor.fetchone()
+    return dict(zip([col[0] for col in desc], row))
+
+@csrf_exempt
+@rest_json()
+def ip_basic(request, s):
+    from django.db import connections
+    int_ip = get_int_ip(s)
+    cursor = connections['ipdb'].cursor()
+
+    sql = """
+SELECT     city_location.region_code,
+           city_location.area_code,
+           city_location.longitude,
+           city_location.metro_code,
+           city_location.latitude,
+           city_location.postal_code,
+           city_location.country_code,
+           city_location.city_name
+FROM       city_blocks
+INNER JOIN city_location on city_location.loc_id = city_blocks.loc_id
+WHERE      %s BETWEEN ip_start and ip_end
+"""
+
+    cursor.execute(sql % (int_ip, ))
+    resp = dictfetchone(cursor) #.fetchone()
+    if resp is None:
+        resp = {}
+    resp['ip'] = s
+
+    return resp
+
+
 @csrf_exempt
 @rest_json()
 def postalcode(request, country_code, postal_code):

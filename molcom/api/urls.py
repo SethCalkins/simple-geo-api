@@ -20,4 +20,5 @@ urlpatterns = patterns( '',
     url( r'^dump', views.dump),
     url( r'^postalcodes/(?P<country_code>.*)/(?P<postal_code>.*)', views.postalcode),
     url( r'^location/(?P<country_code>.*)/(?P<postal_code>.*)', views.postalcode),
+    url( r'^ip/(?P<s>.*)', views.ip_basic),
 )
