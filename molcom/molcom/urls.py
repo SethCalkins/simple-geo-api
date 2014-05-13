@@ -7,3 +7,11 @@ urlpatterns = patterns('',
     url(r'^api/', include('api.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 )
+
+
+
+from api.views import example_ip
+
+urlpatterns += patterns( '',
+    url(r'^examples/ip', example_ip),
+)

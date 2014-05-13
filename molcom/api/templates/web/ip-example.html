@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      
+      #map-canvas {
+        height: 300px;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <!--
+    Include the maps javascript with sensor=true because this code is using a
+    sensor (a GPS locator) to determine the user's location.
+    See: https://developers.google.com/maps/documentation/javascript/tutorial#Loading_the_Maps_API
+    -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=true"></script>
+    <script>
+var map;
+
+(function(){
+  var url = '/api/ip/66.179.39.105';
+  $.ajax(url, {
+        contentType : 'application/json',
+    }).done(function(data){
+      $('#ip_addr').val(data.ip);
+      if (data.latitude)
+      {
+        var txt = '<b>' + data.organization + '</b>';
+        if (data.locality || data.region_code || data.country || data.postal_code)
+        {
+          txt += '<br />';
+          if (data.locality)
+            txt += data.locality;
+          if (data.region_code)
+            txt += ', ' + data.region_code;
+          if (data.postal_code)
+            txt += ' ' + data.postal_code;
+          if (data.country)
+            txt += ' ' + data.country;
+        }
+        var pos = new google.maps.LatLng(data.latitude, data.longitude);
+        var infowindow = new google.maps.InfoWindow({
+          map: map,
+          position: pos,
+          content: txt
+        });
+
+        map.setCenter(pos);
+      }
+    }).fail(function(){
+
+    }).always(function(){
+
+    })
+  return;
+})();
+
+function initialize() {
+  var mapOptions = {
+    zoom: 8
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+
+  // Try HTML5 geolocation
+  /*
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);
+
+      var infowindow = new google.maps.InfoWindow({
+        map: map,
+        position: pos,
+        content: 'Location found using HTML5.'
+      });
+
+      map.setCenter(pos);
+    }, function() {
+      handleNoGeolocation(true);
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }*/
+}
+
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+
+  var options = {
+    map: map,
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+
+
+   <div class="container">
+      <div class="header">
+        <h3 class="text-muted">IP Lookup Example</h3>
+        <form class="well">
+          <label>IP Address:
+            <input type="text" id="ip_addr" />
+          </label>
+        </form>
+      </div>
+    </div>
+
+    <div id="map-canvas"></div>
+
+   <div class="container">
+<!--
+      <div class="jumbotron">
+        <h1>Jumbotron heading</h1>
+        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button">Sign up today</a></p>
+      </div>
+-->
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Subheading</h4>
+          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+          <h4>Subheading</h4>
+          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+
+          <h4>Subheading</h4>
+          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Subheading</h4>
+          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+          <h4>Subheading</h4>
+          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+
+          <h4>Subheading</h4>
+          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>&copy; Company 2014</p>
+      </div>
+
+    </div> <!-- /container -->
+
+
+
+  </body>
+</html>

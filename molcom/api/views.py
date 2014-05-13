@@ -10,7 +10,7 @@ import requests
 from sources.ip_to_geo import get_geo
 
 from django.forms.models import model_to_dict
-
+from django.shortcuts import render
 
 
 from util import levenshtein
@@ -143,6 +143,11 @@ class ExampleAuthentication(authentication.BaseAuthentication):
 #            raise exceptions.AuthenticationFailed('No such user')
 
         return (user, None)
+
+
+def example_ip(request):
+    c = {}
+    return render(request, 'web/ip-example.html', c)
 
 @csrf_exempt
 @rest_json()

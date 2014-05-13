@@ -1,7 +1,6 @@
 import logging
 
 from xml.sax.saxutils import escape
-from django.utils import simplejson
 from json import JSONEncoder, loads
 
 from functools import wraps
@@ -32,7 +31,7 @@ class DjangoJSONEncoder(JSONEncoder):
 def _json(f):
     response = HttpResponse(content_type='application/json')
 #    response.content = json.dumps(f) if not isinstance(f, (str, unicode)) else f
-    response.content = simplejson.dumps(f, cls=DjangoJSONEncoder)
+    response.content = json.dumps(f, cls=DjangoJSONEncoder)
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
     response['Access-Control-Allow-Headers'] = 'API-KEY, username, password'
