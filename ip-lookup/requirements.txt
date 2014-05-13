@@ -1,0 +1,5 @@
+geoip2==0.5.1
+ipaddr==2.1.11
+maxminddb==0.3.3
+requests==2.2.1
+wsgiref==0.1.2

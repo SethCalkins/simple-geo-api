@@ -2,13 +2,23 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from decorators import *
 from api import *
-from api.models import PostalCode, Recipe
+from api.models import *
+from sources.arin import get_arin_info
+from sources.ipdb import get_ip_info
 import phonenumbers
 import requests
+from sources.ip_to_geo import get_geo
+
+from django.forms.models import model_to_dict
 
 
+
+from util import levenshtein
 
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action, link
+from rest_framework import status
 # from serializers import PostalCodeSerializer
 
 from django.contrib.auth.models import User, Group
@@ -67,6 +77,39 @@ class PostalCodeViewSet(viewsets.ModelViewSet):
     queryset = PostalCode.objects.all()
     serializer_class = PostalCodeSerializer
 
+class IpViewSet(viewsets.ViewSet):
+    def list(self, request):
+#        queryset = User.objects.all()
+#        serializer = UserSerializer(queryset, many=True)
+#        return Response(serializer.data)
+        result = None
+        response = Response(result, status=status.HTTP_200_OK)
+        return response
+
+    def retrieve(self, request, pk=None):
+#        result = (self.xform(m) for m in all_markets())
+#    def get(self, request, *args, **kwargs):
+        # Process any get params that you may need
+        # If you don't need to process get params,
+        # you can skip this part
+        get_arg1 = request.GET.get('arg1', None)
+        get_arg2 = request.GET.get('arg2', None)
+
+        ip_addr = pk
+        if ip_addr == '':
+            ip_addr = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+
+        result = get_geo(ip_addr)
+        result = result.__dict__
+        response = Response(result, status=status.HTTP_200_OK)
+        return response
+
+        # Any URL parameters get passed in **kwargs
+#        myClass = CalcClass(get_arg1, get_arg2, *args, **kwargs)
+#        result = myClass.do_work()
+#        result = (self.xform(m) for m in all_markets())
+#        response = Response(result, status=status.HTTP_200_OK)
+#        return response
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -149,30 +192,6 @@ def phonenumber(request, s):
 #    uri = uri + qs
 #    return sources.hds.get(uri)
 
-def get_int_ip(ip_addr):
-    try:
-        ( o1, o2, o3, o4 ) = ip_addr.split('.')
-        integer_ip = ( 16777216 * int(o1) ) + (    65536 * int(o2) ) + (      256 * int(o3) ) +              int(o4)
-        print integer_ip
-    except:
-        integer_ip = None
-    return integer_ip
-
-def dictfetchall(cursor):
-    "Returns all rows from a cursor as a dict"
-    desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
-
-def dictfetchone(cursor):
-    "Returns all rows from a cursor as a dict"
-    desc = cursor.description
-    row = cursor.fetchone()
-    if row:
-        return dict(zip([col[0] for col in desc], row))
-    return {col[0]:None for col in desc}
 
 import re
 AS_PREFIX          = re.compile(r'^AS(\d+) ')
@@ -187,53 +206,14 @@ def get_org(ip_addr):
     except:
         return None
 
-def get_org_arin(ip_addr):
-    url_format = 'http://whois.arin.net/rest/ip/%s.json'
-    try:
-        resp = requests.get(url_format % ip_addr)
-        if resp:
-            org = resp.json()['net']['customerRef']['@name'] #'$'
-            return org
-    except:
-        return None
-
-
 @csrf_exempt
 @rest_json()
 def ip_basic(request, s):
-    from django.db import connections
     ip_addr = s
     if ip_addr == '':
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-    int_ip = get_int_ip(ip_addr)
-    cursor = connections['ipdb'].cursor()
 
-    sql = """
-SELECT     city_location.region_code,
-           city_location.area_code,
-           city_location.longitude,
-           city_location.metro_code,
-           city_location.latitude,
-           city_location.postal_code,
-           city_location.country_code,
-           city_location.city_name
-FROM       city_blocks
-INNER JOIN city_location on city_location.loc_id = city_blocks.loc_id
-WHERE      %s BETWEEN ip_start and ip_end
-"""
-
-    cursor.execute(sql % (int_ip, ))
-    resp = dictfetchone(cursor) #.fetchone()
-    if resp is None:
-        resp = {}
-    resp['ip'] = ip_addr
-    org = get_org_arin(ip_addr)
-    if org is None:
-        org = get_org(ip_addr)
-    resp['organization'] = org
-
-    return resp
-
+    return get_geo(ip_addr).__dict__
 
 @csrf_exempt
 @rest_json()

@@ -26,6 +26,22 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/molcom_cache',
+        'TIMEOUT': 90 * 24 * 3600,
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000
+        }
+    }
+}
+
+try:
+    if not os.path.exists('/var/tmp/molcom_cache'):
+        os.mkdir('/var/tmp/molcom_cache')
+except:
+    pass
 
 # Application definition
 
@@ -69,6 +85,10 @@ DATABASES = {
     'ipdb': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'ipdb.sqlite'),
+    },
+    'rir': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'rir.sqlite3'),
     },
 }
 

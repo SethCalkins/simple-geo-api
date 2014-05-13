@@ -29,3 +29,5 @@ class RecipeAdmin(admin.ModelAdmin):
 
 admin.site.register(PostalCode)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(CityLocation)
+admin.site.register(IpBlock)

@@ -4,11 +4,16 @@ from django.conf.urls import patterns, include, url
 from rest_framework import routers
 
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 #router.register(r'codes', )
 router.register(r'codes', views.PostalCodeViewSet)
 router.register('users', views.UserViewSet)
 router.register('recipes', views.RecipeViewSet)
+#router.register(r'users', views.UserViewSet)
+#router.register(r'markets-orm', views.MarketViewSet, base_name='markets-orm')
+router.register(r'ip2', views.IpViewSet, base_name='ip2')
+
+
 # router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = patterns( '',
