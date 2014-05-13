@@ -121,7 +121,10 @@ def get_geo(ip_addr):
                     setattr(resp, k, v)
 
                 # use our postal code database...
-                pcs = PostalCode.objects.filter(country = resp.country, postal_code=resp.postal_code)
+                postal_code = resp.postal_code
+                if '-' in postal_code:
+                    postal_code = postal_code.split('-')[0]
+                pcs = PostalCode.objects.filter(country = resp.country, postal_code=postal_code)
                 best_match = None
                 best_match_dist = 3
                 for pc in pcs:

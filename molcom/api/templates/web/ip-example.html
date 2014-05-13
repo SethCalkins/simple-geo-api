@@ -98,6 +98,7 @@ function lookup()
 {
   var url = '/api/ip';
   var ip_addr = $('#ip_addr').val();
+  ip_addr = $.trim(ip_addr);
   if (ip_addr!=='')
     url += '/' + encodeURIComponent(ip_addr);
 
@@ -144,6 +145,10 @@ function lookup()
         });
 
         map.setCenter(pos);
+      }
+      else {
+        handleNoGeolocation();
+
       }
     }).fail(function(){
         $('#geo-error').slideDown();
